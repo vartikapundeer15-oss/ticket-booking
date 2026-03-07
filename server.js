@@ -8,24 +8,20 @@ const app = express();
 app.use(express.json());
 app.use("/", seatRoutes);
 
-// Render requires dynamic port
+// Render gives a port automatically
 const PORT = process.env.PORT || 3000;
 
-async function startServer() {
-    try {
+app.get("/", (req, res) => {
+  res.send("Ticket Booking API Running");
+});
 
-        // Start server first so Render detects port
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-        });
+app.listen(PORT, async () => {
+  console.log(`Server running on port ${PORT}`);
 
-        // Then connect Redis
-        await connectRedis();
-        await initializeSeats();
-
-    } catch (error) {
-        console.error("Startup error:", error);
-    }
-}
-
-startServer();
+  try {
+    await connectRedis();
+    await initializeSeats();
+  } catch (error) {
+    console.error("Startup error:", error);
+  }
+});
