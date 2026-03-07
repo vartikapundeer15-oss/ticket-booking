@@ -1,9 +1,9 @@
 const express = require("express");
-
 const router = express.Router();
 
-const { bookSeat } = require("./seatController");
+const { bookSeat, getSeats } = require("./seatController");
 
+router.get("/seats", getSeats);
 router.post("/book", bookSeat);
 
 module.exports = router;

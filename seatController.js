@@ -1,51 +1,47 @@
-const { client } = require("./redisClient");
-
-const TOTAL_SEATS = 10;
+const { getRedisClient } = require("./redisClient");
 
 async function initializeSeats() {
+  const client = getRedisClient();
 
-    for (let i = 1; i <= TOTAL_SEATS; i++) {
-        await client.set(`seat:${i}`, "available");
-    }
+  if (!client) {
+    console.log("Redis client not initialized");
+    return;
+  }
 
-    console.log("Seats initialized");
+  for (let i = 1; i <= 10; i++) {
+    await client.set(`seat:${i}`, "available");
+  }
+
+  console.log("Seats initialized");
 }
 
 async function bookSeat(req, res) {
+  const client = getRedisClient();
+  const { seatNumber } = req.body;
 
-    const { seatNumber, user } = req.body;
+  const seatKey = `seat:${seatNumber}`;
 
-    const seatKey = `seat:${seatNumber}`;
+  const status = await client.get(seatKey);
 
-    const seatStatus = await client.get(seatKey);
+  if (status === "booked") {
+    return res.json({ message: "Seat already booked" });
+  }
 
-    if (seatStatus === "booked") {
-        return res.json({
-            success: false,
-            message: "Seat already booked"
-        });
-    }
+  await client.set(seatKey, "booked");
 
-    const locked = await client.set(`lock:${seatNumber}`, user, {
-        NX: true,
-        EX: 10
-    });
-
-    if (!locked) {
-        return res.json({
-            success: false,
-            message: "Seat is being booked by another user"
-        });
-    }
-
-    await client.set(seatKey, "booked");
-
-    await client.del(`lock:${seatNumber}`);
-
-    res.json({
-        success: true,
-        message: "Seat booked successfully"
-    });
+  res.json({ message: `Seat ${seatNumber} booked successfully` });
 }
 
-module.exports = { initializeSeats, bookSeat };
+async function getSeats(req, res) {
+  const client = getRedisClient();
+
+  const seats = {};
+
+  for (let i = 1; i <= 10; i++) {
+    seats[`seat:${i}`] = await client.get(`seat:${i}`);
+  }
+
+  res.json(seats);
+}
+
+module.exports = { initializeSeats, bookSeat, getSeats };
