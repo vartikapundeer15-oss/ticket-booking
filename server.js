@@ -6,14 +6,16 @@ const seatRoutes = require("./seatRoutes");
 const app = express();
 
 app.use(express.json());
-app.use("/", seatRoutes);
 
-// Render gives a port automatically
-const PORT = process.env.PORT || 3000;
-
+// homepage route
 app.get("/", (req, res) => {
   res.send("Ticket Booking API Running");
 });
+
+// seat routes
+app.use("/", seatRoutes);
+
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
@@ -22,6 +24,6 @@ app.listen(PORT, async () => {
     await connectRedis();
     await initializeSeats();
   } catch (error) {
-    console.error("Startup error:", error);
+    console.log("Startup error:", error);
   }
 });
