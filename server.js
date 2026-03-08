@@ -12,8 +12,8 @@ app.get("/", (req, res) => {
   res.send("Ticket Booking API Running");
 });
 
-// seat routes
-app.use("/", seatRoutes);
+// mount seat routes
+app.use("/seats", seatRoutes);
 
 const PORT = process.env.PORT || 3000;
 
