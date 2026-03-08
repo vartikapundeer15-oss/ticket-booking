@@ -7,12 +7,10 @@ const app = express();
 
 app.use(express.json());
 
-// homepage route
 app.get("/", (req, res) => {
   res.send("Ticket Booking API Running");
 });
 
-// mount seat routes
 app.use("/seats", seatRoutes);
 
 const PORT = process.env.PORT || 3000;

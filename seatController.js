@@ -34,7 +34,6 @@ async function bookSeat(req, res) {
 
 async function getSeats(req, res) {
   const client = getRedisClient();
-
   const seats = {};
 
   for (let i = 1; i <= 10; i++) {
@@ -44,4 +43,19 @@ async function getSeats(req, res) {
   res.json(seats);
 }
 
-module.exports = { initializeSeats, bookSeat, getSeats };
+async function resetSeats(req, res) {
+  const client = getRedisClient();
+
+  for (let i = 1; i <= 10; i++) {
+    await client.set(`seat:${i}`, "available");
+  }
+
+  res.json({ message: "All seats reset" });
+}
+
+module.exports = {
+  initializeSeats,
+  bookSeat,
+  getSeats,
+  resetSeats
+};
